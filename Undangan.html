@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Ticket Undangan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-100 min-h-screen flex items-center justify-center p-4 antialiased">
+
+    <div id="app-container" class="w-full max-w-md w-full transition-all duration-500">
+        <div class="bg-white p-10 rounded-3xl shadow-xl text-center">
+            <div class="animate-spin inline-block w-8 h-8 border-[3px] border-current border-t-transparent text-indigo-600 rounded-full mb-4" role="status" aria-label="loading"></div>
+            <p class="text-slate-500 text-sm animate-pulse">Membuka Undangan...</p>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. KONFIGURASI SUPABASE
+        // ==========================================
+        const SUPABASE_URL = 'https://puvgcnopzxvutbcavhur.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_C6nNtV01ZClA_Iavt9uv0Q_pU8t3rZd';
+        
+        // MENGGANTI NAMA VARIABEL MENJADI supabaseClient
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ==========================================
+        // 2. AMBIL DATA DARI URL
+        // ==========================================
+        const urlParams = new URLSearchParams(window.location.search);
+        const slugTamu = urlParams.get('t');
+
+        async function muatUndangan() {
+            const container = document.getElementById('app-container');
+
+            if (!slugTamu) {
+                tampilkanError("Link undangan tidak lengkap atau tidak valid.");
+                return;
+            }
+
+            const { data: tamu, error: errTamu } = await supabaseClient
+                .from('guests')
+                .select('*')
+                .eq('slug_url', slugTamu)
+                .single();
+
+            if (errTamu || !tamu) {
+                tampilkanError("Maaf, Data Tamu Tidak Ditemukan.");
+                return;
+            }
+
+            const { data: acara, error: errAcara } = await supabaseClient
+                .from('events')
+                .select('*')
+                .eq('id_event', tamu.id_event)
+                .single();
+
+            if (errAcara || !acara) {
+                tampilkanError("Maaf, Data Acara Tidak Ditemukan.");
+                return;
+            }
+
+            renderTema(tamu, acara);
+        }
+
+        // ==========================================
+        // 3. RENDER TEMA DINAMIS
+        // ==========================================
+        function renderTema(tamu, acara) {
+            const container = document.getElementById('app-container');
+            
+            const tgl = new Date(acara.tanggal_acara);
+            const opsiTgl = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const formatTanggal = tgl.toLocaleDateString('id-ID', opsiTgl);
+
+            let htmlKonten = '';
+
+            if (acara.kode_tema === 'tema-floral') {
+                htmlKonten = `
+                    <div class="bg-rose-50 p-8 rounded-[2.5rem] shadow-2xl border-4 border-white relative overflow-hidden text-center">
+                        <div class="absolute -top-4 -left-4 text-6xl opacity-20">🌸</div>
+                        <div class="absolute -bottom-4 -right-4 text-6xl opacity-20">🌺</div>
+                        
+                        <p class="text-rose-400 text-xs font-semibold tracking-[0.2em] uppercase mb-4 mt-4">The Wedding Of</p>
+                        <h1 class="text-4xl font-serif text-rose-900 font-bold mb-2 leading-tight">${acara.nama_acara}</h1>
+                        <p class="text-rose-500 text-sm mb-8 italic font-serif">${formatTanggal}</p>
+                        
+                        <div class="bg-white/70 backdrop-blur-sm p-6 rounded-3xl mb-6 shadow-inner border border-rose-100">
+                            <p class="text-xs text-rose-400 uppercase tracking-widest mb-2">E-Ticket Untuk:</p>
+                            <h2 class="text-2xl font-bold text-slate-800 mb-4">${tamu.nama_tamu}</h2>
+                            
+                            <div class="bg-white p-3 rounded-2xl inline-block shadow-sm border border-slate-100 mb-2">
+                                <div id="qrcode-box"></div>
+                            </div>
+                            <p class="text-[10px] text-slate-400 mt-2">Tunjukkan QR ini pada buku tamu digital kami</p>
+                        </div>
+                        
+                        <p class="text-rose-600 font-serif italic text-sm">Merupakan suatu kehormatan bagi kami atas kehadiran Anda.</p>
+                    </div>
+                `;
+            } 
+            else if (acara.kode_tema === 'tema-minimalis') {
+                htmlKonten = `
+                    <div class="bg-slate-900 p-8 rounded-3xl shadow-2xl border border-slate-800 text-center relative overflow-hidden">
+                        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-1 bg-gradient-to-r from-slate-900 via-indigo-500 to-slate-900"></div>
+                        
+                        <p class="text-indigo-400 text-[10px] font-bold tracking-[0.3em] uppercase mb-6 mt-4">INVITATION</p>
+                        <h1 class="text-3xl font-sans text-white font-bold mb-3 tracking-tight">${acara.nama_acara}</h1>
+                        <p class="text-slate-400 text-xs mb-10 uppercase tracking-widest">${formatTanggal}</p>
+                        
+                        <div class="bg-slate-800 p-6 rounded-2xl mb-8 border border-slate-700">
+                            <p class="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Dear,</p>
+                            <h2 class="text-xl font-semibold text-white mb-6">${tamu.nama_tamu}</h2>
+                            
+                            <div class="bg-white p-4 rounded-xl inline-block mb-2">
+                                <div id="qrcode-box"></div>
+                            </div>
+                            <p class="text-[10px] text-slate-400 mt-3 font-medium">SCAN AT THE ENTRANCE</p>
+                        </div>
+                        
+                        <p class="text-slate-500 text-[11px] uppercase tracking-wider">We look forward to seeing you</p>
+                    </div>
+                `;
+            }
+            else {
+                htmlKonten = `<div class="bg-white p-8 rounded-xl shadow text-center"><h2>${acara.nama_acara}</h2><p>Tamu: ${tamu.nama_tamu}</p><div id="qrcode-box" class="mx-auto flex justify-center mt-4"></div></div>`;
+            }
+
+            container.innerHTML = htmlKonten;
+
+            new QRCode(document.getElementById("qrcode-box"), {
+                text: tamu.id_tamu,
+                width: 180,
+                height: 180,
+                colorDark : "#0f172a", 
+                colorLight : "#ffffff", 
+                correctLevel : QRCode.CorrectLevel.H
+            });
+        }
+
+        function tampilkanError(pesan) {
+            document.getElementById('app-container').innerHTML = `
+                <div class="bg-white p-8 rounded-3xl shadow-xl text-center border border-red-100">
+                    <div class="text-4xl mb-4">🚫</div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-2">Akses Ditolak</h3>
+                    <p class="text-sm text-slate-500">${pesan}</p>
+                </div>
+            `;
+        }
+
+        window.onload = muatUndangan;
+    </script>
+</body>
+</html>
