@@ -19,7 +19,7 @@
                 <div class="bg-slate-800 h-12 w-12 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-md">
                     <span class="text-white font-bold text-xl">WO</span>
                 </div>
-                <h2 class="text-2xl font-bold text-slate-900">Portal Klien</h2>
+                <h2 class="text-2xl font-bold text-slate-900">Portal Akses</h2>
                 <p class="text-slate-400 text-xs mt-1">Sistem Manajemen Undangan Digital</p>
             </div>
             <form id="form-login" onsubmit="handleLogin(event)">
@@ -44,7 +44,7 @@
             <div id="nav-tabs" class="flex gap-2 mb-4 hidden">
                 <button onclick="switchTab('tab-utama')" id="btn-tab-utama" class="flex-1 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-white shadow-sm transition-all">Utama</button>
                 <button onclick="switchTab('tab-data')" id="btn-tab-data" class="flex-1 py-2 rounded-xl text-xs font-medium bg-white text-slate-500 hover:bg-slate-100 border border-slate-100 transition-all">Data Tamu</button>
-                <button onclick="switchTab('tab-pengaturan')" id="btn-tab-pengaturan" class="flex-1 py-2 rounded-xl text-xs font-medium bg-white text-slate-500 hover:bg-slate-100 border border-slate-100 transition-all">Pengaturan</button>
+                <button onclick="switchTab('tab-superadmin')" id="btn-tab-superadmin" class="flex-1 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-white shadow-sm transition-all hidden">Manajemen Klien</button>
             </div>
 
             <div id="tab-utama">
@@ -116,20 +116,36 @@
                 </div>
             </div>
 
-            <div id="tab-pengaturan" class="hidden bg-white p-5 rounded-3xl shadow-sm border border-slate-100">
-                <h3 class="text-sm font-bold text-slate-800 mb-4">Konfigurasi Undangan Digital</h3>
+            <div id="tab-superadmin" class="hidden bg-white p-5 rounded-3xl shadow-sm border border-slate-100">
+                <h3 class="text-sm font-bold text-slate-800 mb-2">Buat Klien & Acara Baru</h3>
+                <p class="text-[10px] text-slate-400 mb-4">Isi form ini untuk menyewakan sistem ke WO/Klien baru.</p>
                 
-                <div class="mb-4">
-                    <label class="block text-xs font-medium text-slate-500 mb-1">Pilih Tema Undangan</label>
-                    <select id="pilihan-tema" class="w-full bg-slate-50 border-transparent rounded-xl py-3 px-3 text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all appearance-none outline-none">
-                        <option value="tema-floral">Tema Floral (Pink Elegan)</option>
-                        <option value="tema-minimalis">Tema Minimalis (Dark Mode)</option>
-                    </select>
-                    <p class="text-[10px] text-slate-400 mt-2">Perubahan tema akan otomatis berlaku pada semua link undangan tamu yang sudah disebar.</p>
-                </div>
-                
-                <button id="btn-simpan-tema" onclick="simpanTema()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold py-3 px-4 rounded-xl shadow-md transition-all">Simpan Tema</button>
-                <p id="notif-tema" class="text-xs text-center mt-3 font-medium hidden"></p>
+                <form id="form-buat-klien" onsubmit="handleBuatKlien(event)">
+                    <div class="bg-slate-50 p-4 rounded-xl mb-3 border border-slate-100">
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-2">1. Info Acara</label>
+                        <input class="mb-2 w-full bg-white border border-slate-200 rounded-lg py-2 px-3 text-xs focus:ring-2 focus:ring-indigo-500 outline-none" id="sa-nama-acara" type="text" placeholder="Nama Acara (Cth: Pernikahan Doni & Rina)" required>
+                        <input class="mb-2 w-full bg-white border border-slate-200 rounded-lg py-2 px-3 text-xs focus:ring-2 focus:ring-indigo-500 outline-none" id="sa-tgl-acara" type="date" required>
+                        <select id="sa-tema" class="w-full bg-white border border-slate-200 rounded-lg py-2 px-3 text-xs focus:ring-2 focus:ring-indigo-500 outline-none appearance-none">
+                            <option value="tema-floral">Tema Floral (Pink Elegan)</option>
+                            <option value="tema-minimalis">Tema Minimalis (Dark Mode)</option>
+                        </select>
+                    </div>
+
+                    <div class="bg-indigo-50 p-4 rounded-xl mb-3 border border-indigo-100">
+                        <label class="block text-[10px] font-bold text-indigo-500 uppercase tracking-wide mb-2">2. Akses Admin Klien (Pemilik Acara)</label>
+                        <input class="mb-2 w-full bg-white border border-indigo-200 rounded-lg py-2 px-3 text-xs focus:ring-2 focus:ring-indigo-500 outline-none" id="sa-user-admin" type="text" placeholder="Buat Username Admin" required>
+                        <input class="w-full bg-white border border-indigo-200 rounded-lg py-2 px-3 text-xs focus:ring-2 focus:ring-indigo-500 outline-none" id="sa-pass-admin" type="text" placeholder="Buat Password Admin" required>
+                    </div>
+
+                    <div class="bg-green-50 p-4 rounded-xl mb-4 border border-green-100">
+                        <label class="block text-[10px] font-bold text-green-600 uppercase tracking-wide mb-2">3. Akses Staf / Penerima Tamu</label>
+                        <input class="mb-2 w-full bg-white border border-green-200 rounded-lg py-2 px-3 text-xs focus:ring-2 focus:ring-green-500 outline-none" id="sa-user-tim" type="text" placeholder="Buat Username Tim" required>
+                        <input class="w-full bg-white border border-green-200 rounded-lg py-2 px-3 text-xs focus:ring-2 focus:ring-green-500 outline-none" id="sa-pass-tim" type="text" placeholder="Buat Password Tim" required>
+                    </div>
+                    
+                    <button id="btn-simpan-klien" type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold py-3 px-4 rounded-xl shadow-md transition-all">Sewa & Buat Sistem</button>
+                    <p id="notif-superadmin" class="text-xs text-center mt-3 font-medium hidden"></p>
+                </form>
             </div>
 
         </div>
@@ -139,12 +155,10 @@
         // ==========================================
         // 1. KONFIGURASI SUPABASE
         // ==========================================
-        const SUPABASE_URL = 'https://puvgcnopzxvutbcavhur.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_C6nNtV01ZClA_Iavt9uv0Q_pU8t3rZd';
+        const SUPABASE_URL = 'https://puvgcnopzxvutbcavhur.supabase.co'; // PASTIKAN INI URL KAMU
+        const SUPABASE_ANON_KEY = 'sb_publishable_C6nNtV01ZClA_Iavt9uv0Q_pU8t3rZd'; // PASTIKAN INI KEY KAMU
 
-        // MENGGANTI NAMA VARIABEL MENJADI supabaseClient AGAR TIDAK BENTROK
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        
         let currentUser = null; 
 
         // ==========================================
@@ -154,24 +168,30 @@
         function toggleCard(id) { document.getElementById(id).classList.toggle('hidden'); }
         
         function switchTab(tabId) {
+            // Sembunyikan semua konten tab
             document.getElementById('tab-utama').classList.add('hidden');
             document.getElementById('tab-data').classList.add('hidden');
-            document.getElementById('tab-pengaturan').classList.add('hidden');
+            document.getElementById('tab-superadmin').classList.add('hidden');
+            
+            // Tampilkan tab yang dipilih
             document.getElementById(tabId).classList.remove('hidden');
 
-            var btns = ['btn-tab-utama', 'btn-tab-data', 'btn-tab-pengaturan'];
             var styleActive = "flex-1 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-white shadow-sm transition-all";
             var styleInactive = "flex-1 py-2 rounded-xl text-xs font-medium bg-white text-slate-500 hover:bg-slate-100 border border-slate-100 transition-all";
 
-            btns.forEach(btn => document.getElementById(btn).className = styleInactive);
-            document.getElementById('btn-' + tabId).className = styleActive;
+            // Reset desain tombol tab
+            if(document.getElementById('btn-tab-utama')) document.getElementById('btn-tab-utama').className = styleInactive;
+            if(document.getElementById('btn-tab-data')) document.getElementById('btn-tab-data').className = styleInactive;
+            
+            // Set tombol yang aktif
+            if(document.getElementById('btn-' + tabId)) document.getElementById('btn-' + tabId).className = styleActive;
 
+            // Muat data spesifik
             if (tabId === 'tab-data') muatDaftarTamu();
-            if (tabId === 'tab-pengaturan') muatPengaturan();
         }
 
         // ==========================================
-        // 3. LOGIN & AUTENTIKASI MULTI-TENANT
+        // 3. LOGIN & PENGATURAN HAK AKSES
         // ==========================================
         async function handleLogin(e) {
             e.preventDefault(); 
@@ -189,19 +209,51 @@
                 document.getElementById('div-login').classList.add('hidden');
                 document.getElementById('div-dashboard').classList.remove('hidden');
                 document.getElementById('user-role').innerText = data.role;
+                document.getElementById('form-login').reset();
                 
-                const { data: eventData } = await supabaseClient.from('events').select('nama_acara').eq('id_event', data.id_event).single();
-                if(eventData) document.getElementById('nama-acara-header').innerText = eventData.nama_acara;
+                const navTabs = document.getElementById('nav-tabs');
 
-                if (data.role === 'admin' || data.role === 'superadmin') {
-                    document.getElementById('nav-tabs').classList.remove('hidden');
-                } else {
-                    document.getElementById('nav-tabs').classList.add('hidden');
+                // SKENARIO 1: JIKA YANG LOGIN ADALAH SUPER ADMIN (PEMILIK SISTEM)
+                if (data.role === 'superadmin') {
+                    document.getElementById('nama-acara-header').innerText = 'Pusat Kendali Admin';
+                    navTabs.classList.remove('hidden');
+                    
+                    // Sembunyikan tombol tab milik klien
+                    document.getElementById('btn-tab-utama').style.display = 'none';
+                    document.getElementById('btn-tab-data').style.display = 'none';
+                    
+                    // Munculkan tombol tab superadmin & arahkan ke sana
+                    document.getElementById('btn-tab-superadmin').classList.remove('hidden');
+                    document.getElementById('btn-tab-superadmin').style.display = 'block';
+                    switchTab('tab-superadmin');
+                } 
+                // SKENARIO 2: JIKA YANG LOGIN ADALAH ADMIN KLIEN (WO)
+                else if (data.role === 'admin') {
+                    // Ambil Nama Acara milik Klien
+                    const { data: eventData } = await supabaseClient.from('events').select('nama_acara').eq('id_event', data.id_event).single();
+                    if(eventData) document.getElementById('nama-acara-header').innerText = eventData.nama_acara;
+
+                    navTabs.classList.remove('hidden');
+                    
+                    // Tampilkan tab milik klien
+                    document.getElementById('btn-tab-utama').style.display = 'block';
+                    document.getElementById('btn-tab-data').style.display = 'block';
+                    
+                    // Sembunyikan tab superadmin
+                    document.getElementById('btn-tab-superadmin').style.display = 'none';
+                    
+                    refreshStatistik();
+                    switchTab('tab-utama');
+                } 
+                // SKENARIO 3: JIKA YANG LOGIN ADALAH TIM PENERIMA TAMU
+                else {
+                    const { data: eventData } = await supabaseClient.from('events').select('nama_acara').eq('id_event', data.id_event).single();
+                    if(eventData) document.getElementById('nama-acara-header').innerText = eventData.nama_acara;
+
+                    navTabs.classList.add('hidden'); // Sembunyikan semua tab atas
+                    refreshStatistik();
                     switchTab('tab-utama');
                 }
-                
-                refreshStatistik();
-                document.getElementById('form-login').reset();
             } else {
                 msg.innerText = 'Kredensial salah / tidak ditemukan.'; msg.classList.remove('hidden');
             }
@@ -211,12 +263,67 @@
             currentUser = null;
             document.getElementById('div-dashboard').classList.add('hidden'); 
             document.getElementById('div-login').classList.remove('hidden'); 
-            switchTab('tab-utama'); 
+            document.getElementById('scan-result').innerText = "Menunggu scan...";
             if(isScannerRunning) toggleScanner(); 
         }
 
         // ==========================================
-        // 4. STATISTIK
+        // 4. SUPER ADMIN: FUNGSI MEMBUAT KLIEN BARU
+        // ==========================================
+        async function handleBuatKlien(e) {
+            e.preventDefault();
+            var btn = document.getElementById('btn-simpan-klien'), notif = document.getElementById('notif-superadmin');
+            btn.innerText = 'Memproses...'; btn.disabled = true; btn.classList.add('opacity-70'); notif.classList.add('hidden');
+
+            // Tarik input form
+            const nAcara = document.getElementById('sa-nama-acara').value;
+            const tAcara = document.getElementById('sa-tgl-acara').value;
+            const kTema = document.getElementById('sa-tema').value;
+            
+            const uAdmin = document.getElementById('sa-user-admin').value;
+            const pAdmin = document.getElementById('sa-pass-admin').value;
+            
+            const uTim = document.getElementById('sa-user-tim').value;
+            const pTim = document.getElementById('sa-pass-tim').value;
+
+            // LANGKAH 1: Buat Data Acara & Pilih Template
+            const { data: newEvent, error: errEvent } = await supabaseClient
+                .from('events')
+                .insert([{ nama_acara: nAcara, tanggal_acara: tAcara, kode_tema: kTema }])
+                .select()
+                .single();
+
+            if (errEvent || !newEvent) {
+                resetButton(btn, 'Sewa & Buat Sistem');
+                notif.className = 'text-xs text-center mt-3 font-medium text-red-600 bg-red-50 p-2 rounded-lg';
+                notif.innerText = 'Gagal membuat acara: ' + (errEvent?.message || 'Unknown Error');
+                notif.classList.remove('hidden');
+                return;
+            }
+
+            // LANGKAH 2: Buat Akun Admin & Tim dengan id_event yang baru dibuat
+            const { error: errUsers } = await supabaseClient
+                .from('users')
+                .insert([
+                    { id_event: newEvent.id_event, username: uAdmin, password: pAdmin, role: 'admin' },
+                    { id_event: newEvent.id_event, username: uTim, password: pTim, role: 'tim' }
+                ]);
+
+            resetButton(btn, 'Sewa & Buat Sistem');
+            notif.classList.remove('hidden');
+
+            if (!errUsers) {
+                notif.className = 'text-xs text-center mt-3 font-medium text-green-600 bg-green-50 p-2 rounded-lg border border-green-200';
+                notif.innerHTML = `✅ <b>SUKSES!</b> Sistem untuk <b>${nAcara}</b> siap diserahkan ke klien.`;
+                document.getElementById('form-buat-klien').reset();
+            } else {
+                notif.className = 'text-xs text-center mt-3 font-medium text-red-600 bg-red-50 p-2 rounded-lg';
+                notif.innerText = 'Acara dibuat, tapi gagal membuat User: ' + errUsers.message;
+            }
+        }
+
+        // ==========================================
+        // 5. STATISTIK KLIEN
         // ==========================================
         async function refreshStatistik() {
             if(!currentUser || !currentUser.id_event) return;
@@ -233,7 +340,7 @@
         }
 
         // ==========================================
-        // 5. LIVE SCANNER
+        // 6. LIVE SCANNER
         // ==========================================
         let html5QrCode, isScannerRunning = false, lastScannedId = "", resetTimeout;
 
@@ -291,7 +398,7 @@
         function playBeep() { try { var ctx = new (window.AudioContext || window.webkitAudioContext)(), osc = ctx.createOscillator(); osc.type = 'sine'; osc.frequency.setValueAtTime(880, ctx.currentTime); osc.connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime + 0.15); } catch (e) {} }
 
         // ==========================================
-        // 6. TAMBAH & CARI TAMU
+        // 7. TAMBAH & CARI TAMU
         // ==========================================
         async function handleTambahTamu(e) {
             e.preventDefault();
@@ -348,7 +455,7 @@
         }
 
         // ==========================================
-        // 7. DATA TAMU
+        // 8. DATA TAMU
         // ==========================================
         async function muatDaftarTamu() {
             var tbody = document.getElementById('isi-tabel-tamu');
@@ -370,35 +477,6 @@
             } else tbody.innerHTML = '<tr><td colspan="2" class="p-6 text-center text-slate-400 text-xs">Belum ada tamu.</td></tr>'; 
         }
 
-        // ==========================================
-        // 8. PENGATURAN TEMA ACARA
-        // ==========================================
-        async function muatPengaturan() {
-            const { data, error } = await supabaseClient.from('events').select('kode_tema').eq('id_event', currentUser.id_event).single();
-            if (data && data.kode_tema) {
-                document.getElementById('pilihan-tema').value = data.kode_tema;
-            }
-        }
-
-        async function simpanTema() {
-            var btn = document.getElementById('btn-simpan-tema'), notif = document.getElementById('notif-tema');
-            btn.innerText = 'Menyimpan...'; btn.disabled = true; notif.classList.add('hidden');
-            
-            const temaBaru = document.getElementById('pilihan-tema').value;
-
-            const { error } = await supabaseClient.from('events').update({ kode_tema: temaBaru }).eq('id_event', currentUser.id_event);
-
-            resetButton(btn, 'Simpan Tema');
-            notif.classList.remove('hidden');
-
-            if (!error) {
-                notif.className = 'text-xs text-center mt-3 font-medium text-green-600 bg-green-50 p-2 rounded-lg';
-                notif.innerText = 'Tema berhasil diperbarui!';
-            } else {
-                notif.className = 'text-xs text-center mt-3 font-medium text-red-600 bg-red-50 p-2 rounded-lg';
-                notif.innerText = 'Gagal menyimpan tema.';
-            }
-        }
     </script>
 </body>
 </html>
