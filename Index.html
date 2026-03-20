@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>tailwind.config = { theme: { extend: { fontFamily: { sans: ['Poppins', 'sans-serif'] } } } }</script>
 </head>
@@ -108,11 +109,11 @@
                 </div>
                 
                 <div class="flex gap-2 mb-3">
-                    <input type="file" id="file-import-csv" accept=".csv" class="hidden" onchange="prosesImportCSV(event)">
-                    <button onclick="document.getElementById('file-import-csv').click()" class="flex-1 bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100 py-2 px-2 rounded-xl text-[10px] font-bold shadow-sm transition-all text-center">⬆️ Import CSV</button>
-                    <button onclick="prosesExportCSV()" class="flex-1 bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100 py-2 px-2 rounded-xl text-[10px] font-bold shadow-sm transition-all text-center">⬇️ Export Laporan</button>
+                    <input type="file" id="file-import-excel" accept=".xls,.xlsx" class="hidden" onchange="prosesImportExcel(event)">
+                    <button onclick="document.getElementById('file-import-excel').click()" class="flex-1 bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100 py-2 px-2 rounded-xl text-[10px] font-bold shadow-sm transition-all text-center">⬆️ Import Excel</button>
+                    <button onclick="prosesExportExcel()" class="flex-1 bg-slate-50 border border-slate-200 text-slate-700 hover:bg-slate-100 py-2 px-2 rounded-xl text-[10px] font-bold shadow-sm transition-all text-center">⬇️ Export Laporan</button>
                 </div>
-                <p class="text-[9px] text-slate-400 mb-4 leading-tight bg-slate-50 p-2 rounded-lg">*Format CSV Import: Kolom 1 = Nama Tamu (Wajib), Kolom 2 = No WA. Jangan gunakan koma (,) di dalam nama tamu.</p>
+                <p class="text-[9px] text-slate-400 mb-4 leading-tight bg-slate-50 p-2 rounded-lg">*Format Excel Import: Kolom A = Nama Tamu (Wajib), Kolom B = No WA. Pastikan mulai isi dari baris kedua jika baris pertama adalah judul kolom (Header).</p>
 
                 <div class="overflow-y-auto max-h-[60vh] rounded-xl border border-slate-100">
                     <table class="w-full text-left text-xs">
@@ -173,13 +174,11 @@
         // ==========================================
         // 1. KONFIGURASI SUPABASE
         // ==========================================
-        const SUPABASE_URL = 'https://puvgcnopzxvutbcavhur.supabase.co'; // PASTIKAN INI URL KAMU
-        const SUPABASE_ANON_KEY = 'sb_publishable_C6nNtV01ZClA_Iavt9uv0Q_pU8t3rZd'; // PASTIKAN INI KEY KAMU
+        const SUPABASE_URL = 'https://puvgcnopzxvutbcavhur.supabase.co'; 
+        const SUPABASE_ANON_KEY = 'sb_publishable_C6nNtV01ZClA_Iavt9uv0Q_pU8t3rZd'; 
 
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let currentUser = null; 
-        
-        // VARIABEL PENTING: Untuk menandai ID acara mana yang sedang dibuka/dikelola
         let activeEventId = null; 
         let activeEventName = "";
 
@@ -230,9 +229,8 @@
                 
                 const navTabs = document.getElementById('nav-tabs');
 
-                // JIKA SUPER ADMIN
                 if (data.role === 'superadmin') {
-                    activeEventId = null; // Tidak ada acara bawaan
+                    activeEventId = null; 
                     document.getElementById('nama-acara-header').innerText = 'Pusat Kendali Admin';
                     navTabs.classList.remove('hidden');
                     
@@ -243,9 +241,8 @@
                     
                     switchTab('tab-superadmin');
                 } 
-                // JIKA ADMIN KLIEN ATAU TIM
                 else {
-                    activeEventId = data.id_event; // Kunci ke acara klien
+                    activeEventId = data.id_event; 
                     const { data: eventData } = await supabaseClient.from('events').select('nama_acara').eq('id_event', activeEventId).single();
                     if(eventData) { 
                         activeEventName = eventData.nama_acara;
@@ -258,7 +255,7 @@
                         document.getElementById('btn-tab-data').style.display = 'block';
                         document.getElementById('btn-tab-superadmin').style.display = 'none';
                     } else {
-                        navTabs.classList.add('hidden'); // Tim tidak punya tab
+                        navTabs.classList.add('hidden'); 
                     }
                     refreshStatistik();
                     switchTab('tab-utama');
@@ -317,20 +314,18 @@
             } else tbody.innerHTML = '<tr><td colspan="2" class="p-3 text-center text-slate-400 text-[10px]">Belum ada klien.</td></tr>';
         }
 
-        // FITUR IMPERSONATION: Super Admin masuk ke dalam data klien
         function masukKeKlien(id_event, nama_acara) {
             activeEventId = id_event;
             activeEventName = nama_acara;
             document.getElementById('nama-acara-header').innerText = 'Data Klien: ' + nama_acara;
             
-            // Ubah tampilan menu atas
             document.getElementById('btn-tab-superadmin').style.display = 'none';
             document.getElementById('btn-tab-utama').style.display = 'block';
             document.getElementById('btn-tab-data').style.display = 'block';
             document.getElementById('btn-back-sa').classList.remove('hidden');
             
             refreshStatistik();
-            switchTab('tab-data'); // Langsung buka tab Data Tamu
+            switchTab('tab-data'); 
         }
 
         function keluarDariKlien() {
@@ -346,84 +341,99 @@
         }
 
         // ==========================================
-        // 5. IMPORT & EXPORT CSV (ADMIN & SUPER ADMIN)
+        // 5. IMPORT & EXPORT EXCEL (ADMIN & SUPER ADMIN)
         // ==========================================
-        async function prosesImportCSV(e) {
+        async function prosesImportExcel(e) {
             const file = e.target.files[0];
             if(!file || !activeEventId) return;
             
             const reader = new FileReader();
             reader.onload = async function(event) {
-                const text = event.target.result;
-                const rows = text.split('\\n'); // Pisah per baris
-                let inserts = [];
-                
-                // Mulai dari i=1 untuk melewati header
-                for(let i=1; i<rows.length; i++){
-                    let cols = rows[i].split(','); // Pisah per koma
-                    if(cols.length >= 1) {
-                        let nama = cols[0].replace(/["\\r]/g, '').trim();
-                        let wa = cols[1] ? cols[1].replace(/["\\r]/g, '').trim() : '';
-                        if(nama && nama !== '') {
-                            let slug = nama.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Math.floor(Math.random() * 10000);
-                            inserts.push({ id_event: activeEventId, nama_tamu: nama, no_whatsapp: wa, slug_url: slug });
+                try {
+                    const data = new Uint8Array(event.target.result);
+                    // Membaca workbook menggunakan SheetJS
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    
+                    // Mengambil sheet pertama
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    
+                    // Konversi sheet ke array bentuk array (header = 1 agar membaca baris ke-1, ke-2 dst)
+                    const rows = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+                    let inserts = [];
+                    
+                    // Asumsi: Baris ke-0 adalah Header (Nama, No WA), jadi data dimulai dari baris ke-1
+                    for(let i = 1; i < rows.length; i++){
+                        let row = rows[i];
+                        if(row && row.length > 0) {
+                            let nama = row[0] ? String(row[0]).trim() : '';
+                            let wa = row[1] ? String(row[1]).trim() : '';
+                            
+                            // Pastikan kolom nama tidak kosong
+                            if(nama && nama !== '') {
+                                let slug = nama.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Math.floor(Math.random() * 10000);
+                                inserts.push({ id_event: activeEventId, nama_tamu: nama, no_whatsapp: wa, slug_url: slug });
+                            }
                         }
                     }
-                }
-                
-                if(inserts.length > 0) {
-                    document.getElementById('isi-tabel-tamu').innerHTML = `<tr><td colspan="2" class="p-6 text-center text-indigo-500 font-bold animate-pulse">Mengimpor ${inserts.length} tamu...</td></tr>`;
-                    const { error } = await supabaseClient.from('guests').insert(inserts);
-                    if(error) alert('Gagal import data: ' + error.message);
-                    else { alert(`Berhasil mengimpor ${inserts.length} data tamu!`); muatDaftarTamu(); refreshStatistik(); }
-                } else {
-                    alert('Tidak ada data valid yang ditemukan dalam file CSV.');
+                    
+                    if(inserts.length > 0) {
+                        document.getElementById('isi-tabel-tamu').innerHTML = `<tr><td colspan="2" class="p-6 text-center text-indigo-500 font-bold animate-pulse">Mengimpor ${inserts.length} tamu ke database...</td></tr>`;
+                        const { error } = await supabaseClient.from('guests').insert(inserts);
+                        if(error) {
+                            alert('Gagal import data: ' + error.message);
+                        } else { 
+                            alert(`Berhasil mengimpor ${inserts.length} data tamu!`); 
+                            muatDaftarTamu(); 
+                            refreshStatistik(); 
+                        }
+                    } else {
+                        alert('Tidak ada data valid yang ditemukan dalam file Excel. Pastikan mengisi Nama di Kolom A.');
+                    }
+                } catch (err) {
+                    alert('Gagal memproses file Excel. Pastikan format file adalah .xls atau .xlsx.');
+                    console.error(err);
                 }
             };
-            reader.readAsText(file);
-            e.target.value = ''; // Reset input
+            
+            // Membaca file sebagai ArrayBuffer agar kompatibel dengan Excel
+            reader.readAsArrayBuffer(file);
+            e.target.value = ''; // Reset input agar bisa upload file yang sama berkali-kali jika perlu
         }
 
-        async function prosesExportCSV() {
+        async function prosesExportExcel() {
             if(!activeEventId) return;
-            alert("Sedang mengumpulkan data... File akan otomatis terunduh.");
+            alert("Sedang menyusun laporan Excel... File akan otomatis terunduh.");
             
-            // Ambil semua data tamu untuk acara ini
+            // Tarik seluruh data tamu untuk acara ini dari Supabase
             const { data } = await supabaseClient.from('guests').select('*').eq('id_event', activeEventId).order('created_at', { ascending: true });
             if(!data || data.length === 0) return alert('Belum ada data tamu untuk diekspor.');
             
-            // Buat Header CSV
-            let csv = 'Nama Tamu,No WhatsApp,Status Kehadiran,Waktu Hadir,Link Undangan Digital\\n';
+            // Format array data agar sesuai dengan Header yang diinginkan di Excel
+            const excelData = data.map(t => ({
+                "Nama Tamu": t.nama_tamu,
+                "No WhatsApp": t.no_whatsapp || '-',
+                "Status Kehadiran": t.status_kehadiran ? 'Hadir' : 'Belum Hadir',
+                "Waktu Hadir": t.waktu_check_in ? new Date(t.waktu_check_in).toLocaleString('id-ID') : '-',
+                "Link Undangan Digital": window.location.origin + "/undangan.html?t=" + t.slug_url
+            }));
             
-            // Isi Baris CSV
-            data.forEach(t => {
-                let status = t.status_kehadiran ? 'Hadir' : 'Belum Hadir';
-                let waktu = t.waktu_check_in ? new Date(t.waktu_check_in).toLocaleString('id-ID') : '-';
-                let link = window.location.origin + "/undangan.html?t=" + t.slug_url;
-                
-                // Escape string agar koma di dalam nama tidak merusak format Excel
-                csv += `"${t.nama_tamu}","${t.no_whatsapp||'-'}","${status}","${waktu}","${link}"\\n`;
-            });
+            // Buat worksheet dari JSON yang sudah diformat
+            const worksheet = XLSX.utils.json_to_sheet(excelData);
             
-            // Trigger Download File
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.setAttribute('href', url);
+            // Buat workbook baru dan tempel worksheet ke dalamnya
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Laporan Kehadiran");
             
-            // Format nama file: Report_NamaAcara_Tanggal
+            // Format nama file dan eksekusi download Excel (.xlsx)
             let tgl = new Date().toISOString().split('T')[0];
             let namaFileAcara = activeEventName.replace(/[^a-zA-Z0-9]/g, '_');
-            a.setAttribute('download', `Report_${namaFileAcara}_${tgl}.csv`);
             
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            XLSX.writeFile(workbook, `Report_${namaFileAcara}_${tgl}.xlsx`);
         }
 
-
         // ==========================================
-        // SISA FUNGSI BAWAAN (SCANNER, CARI, STATISTIK) MENGGUNAKAN activeEventId
+        // SISA FUNGSI BAWAAN MENGGUNAKAN activeEventId
         // ==========================================
         async function refreshStatistik() {
             if(!activeEventId) return;
@@ -460,10 +470,10 @@
             if (!tamu) {
                 resElem.innerText = "QR Tidak Terdaftar di Acara Ini!"; resElem.className = "text-xs font-bold mt-1 mb-3 h-4 text-red-500 text-center";
             } else if (tamu.status_kehadiran === true) {
-                resElem.innerText = `Sudah Hadir: ${tamu.nama_tamu}`; resElem.className = "text-xs font-bold mt-1 mb-3 h-4 text-yellow-500 text-center"; alert(`Peringatan:\\n${tamu.nama_tamu} sudah check-in.`);
+                resElem.innerText = `Sudah Hadir: ${tamu.nama_tamu}`; resElem.className = "text-xs font-bold mt-1 mb-3 h-4 text-yellow-500 text-center"; alert(`Peringatan:\n${tamu.nama_tamu} sudah check-in.`);
             } else {
                 const { error } = await supabaseClient.from('guests').update({ status_kehadiran: true, waktu_check_in: new Date().toISOString(), di_scan_oleh: currentUser.id_user }).eq('id_tamu', decodedText);
-                if(!error) { resElem.innerText = "Check-in Berhasil!"; resElem.className = "text-xs font-bold mt-1 mb-3 h-4 text-green-500 text-center"; alert(`SELAMAT DATANG!\\n${tamu.nama_tamu}`); refreshStatistik(); } else resElem.innerText = "Gagal update.";
+                if(!error) { resElem.innerText = "Check-in Berhasil!"; resElem.className = "text-xs font-bold mt-1 mb-3 h-4 text-green-500 text-center"; alert(`SELAMAT DATANG!\n${tamu.nama_tamu}`); refreshStatistik(); } else resElem.innerText = "Gagal update.";
             }
             clearTimeout(resetTimeout); resetTimeout = setTimeout(() => { lastScannedId = ""; resElem.innerText="Arahkan ke QR Code..."; resElem.className = "text-xs font-medium mt-1 mb-3 h-4 text-slate-500 text-center"; }, 3000);
         }
@@ -503,10 +513,10 @@
         }
 
         async function konfirmasiHadirManual(id_tamu, nama_tamu) {
-            if(confirm(`Konfirmasi kehadiran:\\n${nama_tamu} ?`)) {
+            if(confirm(`Konfirmasi kehadiran:\n${nama_tamu} ?`)) {
                 document.getElementById('hasil-cari').innerHTML = '<p class="text-indigo-400 italic text-center p-3">Memproses...</p>';
                 const { error } = await supabaseClient.from('guests').update({ status_kehadiran: true, waktu_check_in: new Date().toISOString(), di_scan_oleh: currentUser.id_user }).eq('id_tamu', id_tamu);
-                if(!error) { alert(`Berhasil:\\n${nama_tamu}`); document.getElementById('input-cari').value = ''; document.getElementById('hasil-cari').innerHTML = ''; refreshStatistik(); } 
+                if(!error) { alert(`Berhasil:\n${nama_tamu}`); document.getElementById('input-cari').value = ''; document.getElementById('hasil-cari').innerHTML = ''; refreshStatistik(); } 
             }
         }
 
@@ -522,7 +532,7 @@
                 data.forEach(t => {
                     var status = t.status_kehadiran ? '<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-md text-[9px] font-bold tracking-wide">HADIR</span>' : '<span class="bg-slate-100 text-slate-400 px-2 py-0.5 rounded-md text-[9px] font-bold tracking-wide">BELUM</span>';
                     var linkUndangan = window.location.origin + "/undangan.html?t=" + t.slug_url;
-                    var waBtn = `<a href="https://wa.me/${t.no_whatsapp}?text=${encodeURIComponent(`Halo *${t.nama_tamu}*,\\n\\nBerikut link Undangan & QR Code E-Ticket Anda:\\n${linkUndangan}`)}" target="_blank" class="block w-full text-center bg-green-500 hover:bg-green-600 text-white py-1.5 px-2 rounded-lg text-[10px] font-bold mt-1.5">Kirim WA</a>`;
+                    var waBtn = `<a href="https://wa.me/${t.no_whatsapp}?text=${encodeURIComponent(`Halo *${t.nama_tamu}*,\n\nBerikut link Undangan & QR Code E-Ticket Anda:\n${linkUndangan}`)}" target="_blank" class="block w-full text-center bg-green-500 hover:bg-green-600 text-white py-1.5 px-2 rounded-lg text-[10px] font-bold mt-1.5">Kirim WA</a>`;
                     
                     tbody.innerHTML += `<tr class="hover:bg-slate-50 border-b border-slate-50"><td class="p-3"><div><p class="font-bold text-slate-800">${t.nama_tamu}</p><p class="text-slate-400 text-[9px] mt-0.5 max-w-[150px] truncate">${linkUndangan}</p></div></td><td class="p-3 w-24 text-center">${status}${waBtn}</td></tr>`;
                 });
