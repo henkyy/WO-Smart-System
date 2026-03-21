@@ -138,6 +138,7 @@
                             <option value="tema-floral">Tema Floral (Pink Elegan)</option>
                             <option value="tema-minimalis">Tema Minimalis (Dark Mode)</option>
                             <option value="dewanakl-01">Tema Mewah Dewanakl</option>
+                            <option value="undanganpremium">Tema undangan premium</option>
                         </select>
                     </div>
                     <div class="flex gap-2 mb-4">
@@ -488,7 +489,7 @@
             btn.innerText = 'Menyimpan...'; btn.disabled = true; btn.classList.add('opacity-70'); notif.classList.add('hidden'); 
 
             const nama = document.getElementById('nama-tamu').value, wa = document.getElementById('wa-tamu').value;
-            const slug = nama.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Math.floor(Math.random() * 1000);
+            const slug = nama.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' ;
 
             const { error } = await supabaseClient.from('guests').insert([{ id_event: activeEventId, nama_tamu: nama, no_whatsapp: wa, slug_url: slug }]);
             resetButton(btn, 'Simpan Data'); notif.classList.remove('hidden');
@@ -539,7 +540,16 @@
                 });
             } else tbody.innerHTML = '<tr><td colspan="2" class="p-6 text-center text-slate-400 text-xs">Belum ada tamu.</td></tr>'; 
         }
+const urlParams = new URLSearchParams(window.location.search);
+const slug = urlParams.get("t");
 
+const { data } = await supabaseClient
+  .from("guests")
+  .select("nama_tamu, id_event")
+  .eq("slug_url", slug)
+  .single();
+
+document.getElementById("guestName").innerText = data.nama_tamu;
     </script>
 </body>
 </html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Undangan Pernikahan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<!-- OPENING -->
+<h2>Undangan Pernikahan</h2>
+<h1 id="coupleName">Loading...</h1>
+
+<p>Kepada Yth:</p>
+<h2 id="guestName">Tamu Undangan</h2>
+<div id="qrcode" style="margin-top:20px;"></div>
+
+<!-- MUSIK -->
+<audio id="musik" loop>
+  <source src="musik.mp3" type="audio/mpeg">
+</audio>
+
+<!-- CONTENT -->
+<div class="content" id="content">
+
+ <link href="https://fonts.googleapis.com/css2?family=Playfair+Display&display=swap" rel="stylesheet">
+
+  <section class="story">
+    <h2>Cerita Kami</h2>
+    <p>Dari pertemuan sederhana hingga menuju hari bahagia...</p>
+  </section>
+
+  <section class="gallery">
+    <h2>Galeri</h2>
+    <div class="photos">
+      <img src="images/foto1.jpg">
+      <img src="images/foto2.jpg">
+      <img src="images/foto3.jpg">
+    </div>
+  </section>
+
+  <section class="countdown">
+    <h2>Menuju Hari Bahagia</h2>
+    <div id="timer"></div>
+  </section>
+
+  <section class="location">
+    <h2>Lokasi</h2>
+    <iframe src="https://maps.google.com/maps?q=surabaya&t=&z=13&ie=UTF8&iwloc=&output=embed"></iframe>
+  </section>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

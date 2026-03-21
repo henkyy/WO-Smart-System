@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Poppins&display=swap');
+
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(to bottom, #0f0f0f, #1a1a1a);
+  color: white;
+  overflow-x: hidden;
+}
+
+h1, h2 {
+  font-family: 'Playfair Display', serif;
+  color: gold;
+}
+
+.opening {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: url('images/foto1.jpg') center/cover no-repeat;
+}
+
+.opening h1 {
+  font-size: 40px;
+}
+
+button {
+  padding: 12px 25px;
+  background: gold;
+  border: none;
+  color: black;
+  font-weight: bold;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.hero {
+  height: 100vh;
+  background: url('images/foto2.jpg') center/cover no-repeat;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.gallery img {
+  width: 90%;
+  max-width: 400px;
+  margin: 10px auto;
+  display: block;
+  border-radius: 15px;
+}
+
+section {
+  padding: 60px 20px;
+  animation: fadeUp 1s ease;
+}
+
+@keyframes fadeUp {
+  from {opacity: 0; transform: translateY(40px);}
+  to {opacity: 1; transform: translateY(0);}
+}
